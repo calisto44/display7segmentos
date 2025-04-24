@@ -17,25 +17,48 @@ void disp7seg_init( void )
     PORTB &=~(1<<1);
 }
 
-void disp7seg( unsigned char d )
+void disp7seg_unidade( unsigned char d )
 {
-    PORTD = digitos7seg[d];
+    
+PORTB &=~(1<<1); // DESLIGA DEZENA
+PORTB |=(1<<0); // LIGANDO O UNIDADE
+PORTD = digitos7seg[d%10];
+
+}
+
+void disp7seg_dezena( unsigned char d )
+{
+    
+PORTB |=(1<<1); // LIGANDO DEZENA
+PORTB &=~(1<<0); // DESLIGANDO UNIDADE
+PORTD = digitos7seg[d/10];
+
 }
 
 int main(void) 
 {
     char i = 0;
+    long t = 0;
     disp7seg_init();
 
     while( 1 )
     {
-        PORTB=0x02;
-        disp7seg( i );
-        _delay_ms(500);
+        if(t%2)
+        { 
+            disp7seg_unidade (i);
+        }
+
+    else
+    {
+        disp7seg_dezena (i);
+
+    }
+
+        _delay_ms(1);
 
         // Incremento limitado: 0..15
-        ++i;
-        if( i >= 16 )
-            i = 0;
+        ++t;
+        if(( t % 500 )==0)
+            i = ++i%100;
     }
 }
